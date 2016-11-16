@@ -73,48 +73,58 @@ var Main = (function (_super) {
     };
     p.showPanel = function (task, tag) {
         if (tag == "taskpanel not accept" || tag == "taskpanel submit") {
-            Main.taskPanelContent1.x = 300;
+            Main.taskPanelContent1.x = 50;
             Main.taskPanelContent1.y = 50;
             Main.taskPanelContent1.size = 20;
-            Main.taskPanelContent1.text = "无进行中的任务";
+            Main.taskPanelContent1.text = "暂时没有任务";
+            Main.taskPanelContent1.textColor = 0xFFFF00;
             Main.taskPanelContent2.text = "";
             Main.taskPanelContent3.text = "";
             Main.taskPanelContent4.text = "";
         }
         else if (tag == "taskpanel accept") {
-            Main.taskPanelContent1.x = 300;
+            Main.taskPanelContent1.x = 50;
             Main.taskPanelContent1.y = 50;
             Main.taskPanelContent1.size = 20;
             Main.taskPanelContent1.text = "任务名称: " + task.getName();
-            Main.taskPanelContent2.x = 300;
-            Main.taskPanelContent2.y = 100;
+            Main.taskPanelContent1.textColor = 0xFFFF00;
+            Main.taskPanelContent2.x = 50;
+            Main.taskPanelContent2.y = 80;
             Main.taskPanelContent2.size = 20;
             Main.taskPanelContent2.text = "发布任务NPC: " + task.getFromNpcId();
-            Main.taskPanelContent3.x = 300;
-            Main.taskPanelContent3.y = 150;
+            Main.taskPanelContent2.textColor = 0xFFFF00;
+            Main.taskPanelContent3.x = 50;
+            Main.taskPanelContent3.y = 110;
             Main.taskPanelContent3.size = 20;
             Main.taskPanelContent3.text = "完成任务NPC: " + task.getToNpcId();
-            Main.taskPanelContent4.x = 300;
-            Main.taskPanelContent4.y = 200;
+            Main.taskPanelContent3.textColor = 0xFFFF00;
+            Main.taskPanelContent4.x = 50;
+            Main.taskPanelContent4.y = 140;
             Main.taskPanelContent4.size = 20;
-            Main.taskPanelContent4.text = "任务状态： " + task.getStatus();
+            Main.taskPanelContent4.text = "任务状态：任务进行中！";
+            Main.taskPanelContent4.textColor = 0xFFFF00;
         }
         if (tag == "accept") {
             Main.dialogPanelContent1.x = 100;
-            Main.dialogPanelContent1.y = 600;
+            Main.dialogPanelContent1.y = 550;
             Main.dialogPanelContent1.text = "任务名称: " + task.getName();
+            Main.dialogPanelContent1.textColor = 0xFFFF00;
             Main.dialogPanelContent2.x = 200;
-            Main.dialogPanelContent2.y = 650;
+            Main.dialogPanelContent2.y = 580;
             Main.dialogPanelContent2.text = "发布任务NPC: " + task.getFromNpcId();
+            Main.dialogPanelContent2.textColor = 0xFFFF00;
             Main.dialogPanelContent3.x = 200;
-            Main.dialogPanelContent3.y = 700;
+            Main.dialogPanelContent3.y = 610;
             Main.dialogPanelContent3.text = "完成任务NPC: " + task.getToNpcId();
+            Main.dialogPanelContent3.textColor = 0xFFFF00;
             Main.dialogPanelContent4.x = 200;
-            Main.dialogPanelContent4.y = 750;
-            Main.dialogPanelContent4.text = "任务状态： " + task.getStatus();
+            Main.dialogPanelContent4.y = 640;
+            Main.dialogPanelContent4.text = "任务状态：等待接受任务！";
+            Main.dialogPanelContent4.textColor = 0xFFFF00;
             Main.dialogPanelButton.x = 300;
-            Main.dialogPanelButton.y = 800;
+            Main.dialogPanelButton.y = 670;
             Main.dialogPanelButton.text = "接受";
+            Main.dialogPanelButton.textColor = 0xFFFF00;
             Main.dialogPanelButton.touchEnabled = true;
             Main.dialogPanelButton.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
                 TaskService.getInstance().accept(task.getId());
@@ -129,18 +139,23 @@ var Main = (function (_super) {
             Main.dialogPanelContent1.x = 100;
             Main.dialogPanelContent1.y = 600;
             Main.dialogPanelContent1.text = "任务名称: " + task.getName();
+            Main.dialogPanelContent1.textColor = 0xFFFF00;
             Main.dialogPanelContent2.x = 200;
             Main.dialogPanelContent2.y = 650;
             Main.dialogPanelContent2.text = "发布任务NPC: " + task.getFromNpcId();
+            Main.dialogPanelContent2.textColor = 0xFFFF00;
             Main.dialogPanelContent3.x = 200;
             Main.dialogPanelContent3.y = 700;
             Main.dialogPanelContent3.text = "完成任务NPC: " + task.getToNpcId();
+            Main.dialogPanelContent3.textColor = 0xFFFF00;
             Main.dialogPanelContent4.x = 200;
             Main.dialogPanelContent4.y = 750;
-            Main.dialogPanelContent4.text = "任务状态： " + task.getStatus();
+            Main.dialogPanelContent4.text = "任务状态：完成任务！";
+            Main.dialogPanelContent4.textColor = 0xFFFF00;
             Main.dialogPanelButton.x = 300;
             Main.dialogPanelButton.y = 800;
             Main.dialogPanelButton.text = "完成";
+            Main.dialogPanelButton.textColor = 0xFFFF00;
             Main.dialogPanelButton.touchEnabled = true;
             Main.dialogPanelButton.addEventListener(egret.TouchEvent.TOUCH_TAP, function () {
                 TaskService.getInstance().finish(task.getId());
@@ -154,18 +169,19 @@ var Main = (function (_super) {
     };
     p.showEmoji = function (emoji) {
         if (emoji == "yellow !") {
-            Main.n0Emoji.text = "黄色叹号";
-            Main.n0Emoji.x = 40;
-            Main.n0Emoji.y = 220;
-            Main.n0Emoji.size = 20;
+            Main.n0Emoji.text = "!  !  !";
+            Main.n0Emoji.size = 72;
+            Main.n0Emoji.x = 80;
+            Main.n0Emoji.y = 280;
+            Main.n0Emoji.size = 48;
             Main.n0Emoji.textColor = 0xFFFF00;
         }
         else if (emoji == "yellow ?") {
             Main.n0Emoji.text = "";
-            Main.n1Emoji.text = "黄色问号";
-            Main.n1Emoji.x = 340;
-            Main.n1Emoji.y = 530;
-            Main.n1Emoji.size = 20;
+            Main.n1Emoji.text = "?  ?  ?";
+            Main.n1Emoji.x = 450;
+            Main.n1Emoji.y = 250;
+            Main.n1Emoji.size = 48;
             Main.n1Emoji.textColor = 0xFFFF00;
         }
         else if (emoji == "") {
@@ -174,20 +190,44 @@ var Main = (function (_super) {
         }
     };
     p.createGameScene = function () {
-        var bg = new egret.Shape();
-        bg.graphics.beginFill(0x336699);
-        bg.graphics.drawRect(0, 0, this.stage.stageWidth, this.stage.stageHeight);
-        bg.graphics.endFill();
-        this.addChild(bg);
-        this.touchEnabled = true;
+        // var sky:egret.Bitmap = this.createBitmapByName("a_png");
+        // this.addChild(sky);
+        var stageW = this.stage.stageWidth;
+        var stageH = this.stage.stageHeight;
+        // sky.width = stageW;
+        // sky.height = stageH;
+        var p1Container = new egret.DisplayObjectContainer();
+        this.addChild(p1Container);
+        p1Container.width = stageW;
+        p1Container.height = stageH;
+        // this.touchEnabled = true;
+        var bg1 = this.createBitmapByName("a_png");
+        p1Container.addChild(bg1);
+        bg1.width = stageW;
+        bg1.height = stageH;
+        var Mask1 = new egret.Shape();
+        Mask1.graphics.beginFill(0x000000, 0.5);
+        Mask1.graphics.drawRect(0, 0, 500, 172);
+        Mask1.graphics.endFill();
+        Mask1.x = 20;
+        Mask1.y = 20;
+        p1Container.addChild(Mask1);
+        var Mask2 = new egret.Shape();
+        Mask2.graphics.beginFill(0x000000, 0.5);
+        Mask2.graphics.drawRect(0, 0, stageW, 360);
+        Mask2.graphics.endFill();
+        Mask2.y = 520;
+        p1Container.addChild(Mask2);
         var NPC0 = new NPC("npc_0");
         var NPC1 = new NPC("npc_1");
         var taskPanel = new TaskPanel("dialogpanel");
         var taskAllTimePanel = new TaskPanel("taskpanel");
         var taskService = TaskService.getInstance();
-        var task = new Task("0", "探索地图，找到隐藏的NPC", TaskStatus.ACCEPTABLE, "npc_0", "npc_1");
+        var task = new Task("0", "在场景中找到另一个NPC", TaskStatus.ACCEPTABLE, "npc_0", "npc_1");
         var task1 = new Task("1", "测试游戏系统的完成程度", TaskStatus.ACCEPTABLE, "npc_1", "npc_0");
         var N0 = this.createBitmapByName("npc1_png");
+        N0.x = 50;
+        N0.y = 300;
         N0.width = 156;
         N0.height = 220;
         N0.touchEnabled = true;
@@ -197,7 +237,7 @@ var Main = (function (_super) {
         }, this);
         this.addChild(N0);
         var N1 = this.createBitmapByName("npc2_png");
-        N1.x = 300;
+        N1.x = 450;
         N1.y = 300;
         N1.width = 131;
         N1.height = 220;
@@ -281,11 +321,6 @@ var Main = (function (_super) {
     p.touchNPC1 = function (evt) {
         console.log("click");
     };
-    /**
-     * 创建游戏场景
-     * Create a game scene
-     */
-    //对话任务面板的ui
     Main.dialogPanelContent1 = new egret.TextField();
     Main.dialogPanelContent2 = new egret.TextField();
     Main.dialogPanelContent3 = new egret.TextField();
