@@ -1,285 +1,180 @@
-class Task {
-    private id: String;
-    private name: string;
-    private desc: String;
-    private status: TaskStatus;
-    private fromNpcId: String;
-    private toNpcId: String;
+class Task implements TaskConditionContext{
 
-    constructor(id: String, name: string, status: TaskStatus, fromNpcId: String, toNpcId: String) {
+
+    private id : String;
+
+    private name : string;
+
+    private desc : String;
+
+    private status : TaskStatus;
+
+    private fromNpcId : String;
+
+    private toNpcId : String;
+
+    public current : number = 0;
+
+    public total : number = -1;
+
+    public condition : String;
+
+
+    constructor(id : String, name : string, status : TaskStatus, fromNpcId : String, toNpcId : String, condition : String){
 
         this.id = id;
         this.name = name;
         this.status = status;
         this.fromNpcId = fromNpcId;
         this.toNpcId = toNpcId;
+        this.condition = condition;
+        if(condition == "talk"){
+
+            this.total = -1;
+
+        }else if(condition == "kill"){
+
+            this.total = 10;
+        }
 
     }
 
-    public getId(): String {
+
+    public getId() : String{
 
         return this.id;
-
     }
 
-    public getName(): string {
+    public getName() : string{
 
         return this.name;
     }
 
-    public getStatus(): TaskStatus {
+    public getStatus() : TaskStatus{
 
         return this.status;
     }
 
-    public getFromNpcId(): String {
+    public getFromNpcId() : String{
 
         return this.fromNpcId;
     }
 
-    public getToNpcId(): String {
+    public getToNpcId() : String{
 
         return this.toNpcId;
     }
 
-    public setStatus(taskStatus: TaskStatus): void {
+    public setStatus(taskStatus : TaskStatus) : void{
 
         this.status = taskStatus;
     }
 
-}
+    public setCurrent(){
 
-enum ErrorCode {
+        this.current++;
+        this.checkStatus();
+    }
 
-    SUCCESS,
-    MISSING_TASK
+    public getCurrent(){
 
-}
+        return this.current;
+    }
 
-enum TaskStatus {
+    
+    //检测进行中到可提交
+    private checkStatus(){
 
-    UNACCEPTABLE = 0,
-    ACCEPTABLE = 1,
-    DURING = 2,
-    CANSUBMIT = 3,
-    SUBMITTED = 4
+        if(this.status == TaskStatus.DURING && this.current >= this.total){
 
-}
-
-class TaskService {
-    //全局变量，一个模块最多一个（任务系统等）
-    private static instance: TaskService;
-    private static count = 0;
-    public taskList: Task[] = [];
-    public observerList: Observer[] = [];
-
-    constructor() {
-
-        TaskService.count++;
-        if (TaskService.count > 1) {
-            throw 'singleton!!!';
+            this.status = TaskStatus.CANSUBMIT;
+            TaskService.getInstance().notify(this);
         }
+        
     }
 
-    //获取TaskService的实例
-    public static getInstance() {
 
-        if (TaskService.instance == null) {
+    //接受任务
+    public onAccept(){
 
-            TaskService.instance = new TaskService();
+            if(this.getStatus() == TaskStatus.ACCEPTABLE){
+
+                this.setStatus(TaskStatus.DURING);
+                
+                if(this.condition == "talk"){
+
+                    new NPCTalkTaskCondition().onAccept(this);
+
+                }else if(this.condition == "kill"){
+
+                    new KillMonsterTaskCondition().onAccept(this);
+                }
+                
+                TaskService.getInstance().notify(this);
+  
+            }
         }
 
-        return TaskService.instance;
-    }
 
+    //完成任务
+    public onSubmit() : ErrorCode{
 
-
-    //不公开数据，交给调用方处理
-    public getTaskByCustomRule(rule: Function): Task {
-
-        //拷贝数据
-        var clone = this.taskList;
-
-        //为传入函数增加了参数
-        return rule(clone);
-
-    }
-
-
-    public addTask(task: Task) {
-
-        this.taskList.push(task);
-    }
-
-
-    public addObserver(observer: Observer) {
-
-        this.observerList.push(observer);
-    }
-
-    //public removeObserver(observer : Observer){}
-    //public removeTask(task : Task){}
-
-
-    //完成任务时调用
-    public finish(id: String): ErrorCode {
-
-        if (id == "") {
+        if(this.id == ""){
 
             return ErrorCode.MISSING_TASK;
         }
 
-        for (var i = 0; i < this.taskList.length; i++) {
+            if(this.getStatus() == TaskStatus.CANSUBMIT){
 
-            if (this.taskList[i].getId() == id) {
+                this.setStatus(TaskStatus.SUBMITTED);
+                TaskService.getInstance().notify(this);
 
-                this.taskList[i].setStatus(TaskStatus.SUBMITTED);
-                this.notify(this.taskList[i]);
-                break;
-            }
+                //将下一个任务设为可完成
+                for(var i = 0; i < TaskService.getInstance().taskList.length - 1; i++){
+
+                    if(this.id == TaskService.getInstance().taskList[i].getId()){
+                        
+                        TaskService.getInstance().taskList[i+1].setStatus(TaskStatus.ACCEPTABLE);
+                        TaskService.getInstance().notify(TaskService.getInstance().taskList[i+1]);
+                        break;
+                    }
+                }
         }
 
         return ErrorCode.SUCCESS;
     }
 
 
-    //接受任务时调用
-    public accept(id: String): void {
+}    
 
-        for (var i = 0; i < this.taskList.length; i++) {
+enum TaskStatus{
 
-            if (this.taskList[i].getId() == id && this.taskList[i].getStatus() == TaskStatus.ACCEPTABLE) {
+    UNACCEPTABLE = 0,
 
-                this.taskList[i].setStatus(TaskStatus.DURING);
-                this.notify(this.taskList[i]);
-                break;
-            }
-        }
+    ACCEPTABLE = 1,
 
-    }
+    DURING = 2,
 
+    CANSUBMIT = 3,
 
-    //将任务发送给所有观察者,并让观察者进行相应的处理
-    //只能内部调用
-    public notify(task: Task) {
-
-        for (var i = 0; i < this.observerList.length; i++) {
-
-            this.observerList[i].onChange(task);
-        }
-
-    }
-}
-
-class NPC implements Observer {
-
-    private id: String;
-
-    //头顶的提示任务状态的符号
-    private emoji: String;
-
-    constructor(id: String) {
-
-        this.id = id;
-    }
-
-    public getId(): String {
-
-        return this.id;
-    }
-
-    public setEmoji(emoji: String) {
-
-        this.emoji = emoji;
-    }
-
-
-    //根据变化的任务的相应状态改变相应NPC头顶的符号
-    onChange(task: Task) {
-
-        //任务刚创建时
-        if (task.getStatus() == TaskStatus.ACCEPTABLE) {
-
-            if (this.id == task.getFromNpcId()) {
-
-                this.emoji = "yellow !";
-
-            }
-
-        } else if (task.getStatus() == TaskStatus.DURING) {
-
-            if (this.id == task.getFromNpcId()) {
-
-
-                this.emoji = "";
-            }
-
-            if (this.id == task.getToNpcId()) {
-
-                this.emoji = "yellow ?";
-
-            }
-
-        } else if (task.getStatus() == TaskStatus.SUBMITTED) {
-
-            this.emoji = "";
-        }
-
-        new Main().showEmoji(this.emoji);
-
-    }
+    SUBMITTED = 4
 
 }
 
-class TaskPanel implements Observer {
+enum ErrorCode{
 
-    private id: String;
+    SUCCESS,
 
-    constructor(id: String) {
+    MISSING_TASK
 
-        this.id = id;
-    }
-
-    public getId(): String {
-
-        return this.id;
-    }
-
-
-    onChange(task: Task) {
-
-        if (task.getStatus() == TaskStatus.ACCEPTABLE) {
-
-            new Main().showPanel(task, "taskpanel not accept");
-        }
-
-        if (task.getStatus() == TaskStatus.DURING) {
-
-            new Main().showPanel(task, "taskpanel accept");
-        }
-
-        if (task.getStatus() == TaskStatus.SUBMITTED) {
-
-            new Main().showPanel(task, "taskpanel submit");
-        }
-
-        if (task.getStatus() == TaskStatus.ACCEPTABLE && Main.click) {
-
-            new Main().showPanel(task, "accept");
-
-        } else if (task.getStatus() == TaskStatus.DURING) {
-
-            new Main().showPanel(task, "finish")
-        }
-
-        Main.click = false;
-
-    }
 }
 
-interface Observer {
+interface EventEmitter{
 
-    //接受到信息后进行相应的处理，信息作为参数可以是任意事物，如task等
-    onChange(object: any);
+    addObserver(observer : Observer);
+
+    removeObserver(observer : Observer);
+
+    notify(object : Object);
 
 }
